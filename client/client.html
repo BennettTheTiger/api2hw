@@ -6,7 +6,122 @@
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
+    //function to send an xhr request
+    const sendAjax = (url, requestType) => {
+      //create a new xhr (ajax) request. 
+      const xhr = new XMLHttpRequest();
+      //set the xhr to a GET || HEAD request to a certain URL
+      xhr.open(requestType, url);
+      //Set the accept headers to the desired response mime type
+      xhr.setRequestHeader ("Accept", 'application/json');
 
+      //When the xhr loads, call handleResponse and pass the xhr object
+      xhr.onload = () => handleResponse(xhr);
+    
+      
+      
+      //send our ajax request to the server
+      xhr.send();
+    };
+
+  
+
+     const handleResponse = (xhr) => {
+       console.log(xhr.status);
+	    //grab the content-type header from the response
+      //This will tell us what the server actually responded with.
+      //Again, the server can ignore our requested types.
+      const type = xhr.getResponseHeader('content-type');
+      console.log(type);
+      console.dir(xhr);
+	  //grab the content section
+      const content = document.querySelector("#content");
+	  //create h1 and p to hold our response data for the page
+      const h1 = document.createElement('h1');
+      const p = document.createElement('p');
+
+	  //if the response was in json
+      if(type === 'application/json') {
+		//parse the response text into a JSON object
+        const obj = JSON.parse(xhr.response);
+
+         if(obj.id == undefined){
+          //check the status code
+          switch(xhr.status) {
+            case 200: //success
+            obj.id = 'Success';
+              break;
+            case 201: //created
+            obj.id = 'Created Data';
+              break;
+            case 204: //updated (no response back from server)
+            obj.id = 'Updated (No Content)';
+              return;
+            case 400: //bad request
+            obj.id = 'Bad Request';
+              break;
+            case 404: //bad request
+            obj.id = 'Not Found';
+              break;
+            default: //any other status code
+            obj.id = `Error code not implemented by client.`;
+              break;
+          }
+      }
+        console.dir(obj);
+		//add the json fields to our html elements
+        h1.textContent = `${obj.id}`;
+      
+        if(document.querySelector('#methodSelect').value == 'GET'){
+          p.textContent = `${JSON.stringify(obj.users)}`
+          if(obj.users == undefined) p.textContent = `${obj.message}`;
+        }
+      }
+    //clear text content
+      content.innerHTML = '';
+	  //append the h1 and p to the content.
+      content.appendChild(h1);
+      content.appendChild(p);
+    };
+
+    const postType = (e) =>{
+      e.preventDefault();
+      console.log('posting data');
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/addUser');//addUser post URL
+      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      xhr.setRequestHeader ('Accept', 'application/json');
+      xhr.onload = () => handleResponse(xhr);
+      let nameField = document.querySelector('#nameField');
+      let ageField = document.querySelector('#ageField');
+      console.log(nameField.value,ageField.value);
+      const formData = `name=${nameField.value}&age=${ageField.value}`;
+      //send our request with the data
+      xhr.send(formData);
+
+      return false;
+    }
+
+    const doGet = (e) =>{
+      e.preventDefault();//DONT RELOAD THE PAGE PLS
+      let url = document.querySelector('#urlField');
+      let getKind = document.querySelector('#methodSelect');
+    
+      sendAjax(url.value,'GET');
+    }
+    const init = () => {
+      const button = document.querySelector("#send");
+      button.addEventListener('click', (e)=> doGet(e));
+  
+  
+      const userButton = document.querySelector("#addUser");
+      userButton.addEventListener('click', (e) => postType(e));
+      
+    };
+      
+    
+
+    window.onload = init;
   </script>
 </head>
 <body>
@@ -17,7 +132,7 @@
       <input id="nameField" type="text" name="name" />
       <label for="age">Age: </label>
       <input id="ageField" type="number" name="age" min="0" max="100" step="1"/>
-      <input type="submit" value="Add User" />
+      <input type="submit" value="Add User" id='addUser'/>
     </form>
     <form id="userForm" action="/getUsers" method="get">
       <select id='urlField'>
@@ -25,10 +140,10 @@
         <option value='/notReal'>/notReal</option>
       </select>
       <select id="methodSelect">
-        <option value="get">GET</option>
-        <option value="head">HEAD</option>
+        <option value="GET">GET</option>
+        <option value="HEAD">HEAD</option>
       </select>
-      <input type="submit" value="Get User" />
+      <input type="submit" value="Get User" id="send"/>
     </form>
   </section>
   <section id="content">

@@ -1,0 +1,33 @@
+{
+  "name": "http-api-assignment-ii",
+  "version": "1.0.0",
+  "engines": {
+    "node": "9.1.0",
+    "npm": "6.4.1"
+  },
+  "description": "A node api with get and post methods",
+  "main": "./src/server.js",
+  "scripts": {
+    "start": "node ./src/server.js",
+    "pretest": "eslint ./src --fix",
+    "test": "echo \"Tests complete\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IGM-RichMedia-at-RIT/http-api-assignment-ii.git"
+  },
+  "author": "Bennett Schoonerman",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^4.5.0",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-plugin-import": "^2.7.0"
+  },
+  "bugs": {
+    "url": "https://github.com/IGM-RichMedia-at-RIT/http-api-assignment-ii/issues"
+  },
+  "homepage": "https://github.com/IGM-RichMedia-at-RIT/http-api-assignment-ii#readme",
+  "dependencies": {
+    "nodemon": "^1.18.4"
+  }
+}
